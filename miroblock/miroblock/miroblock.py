@@ -31,6 +31,11 @@ class MiroXBlock(XBlock):
         help="View Link",       
     )
 
+
+    boardId = String(
+        default="", scope=Scope.settings,
+        help="Board ID",       
+    )
     # ------- External, Editable Fields -------
     display_name = String(
         display_name="Display Name", 
@@ -99,13 +104,51 @@ class MiroXBlock(XBlock):
     # than one handler, or you may not need any handlers at all.
     @XBlock.json_handler
     def upload_contribution(self, data, suffix=''):
-        print("1_________")
-        user_service = self.runtime.service(self, 'user')
-        print("2_________")
-        user = user_service.get_current_user()
-        print(user)
-        username = user.opt_attrs.get('edx-platform.username')
-        print(username)
+        try:
+            user_service = self.runtime.service(self, 'user')
+            user = user_service.get_current_user()
+            username = user.opt_attrs.get('edx-platform.username')
+            url = "https://api.miro.com/v1/boards/"+self.boardId+"/widgets/"
+            print(url)
+            headers = {
+                "Accept": "application/json",
+            "Authorization": "Bearer "+ self.bearer
+            }
+            
+            print(headers)
+            response = requests.request("GET", url, headers=headers)
+            print(response)
+            resData = response.json()
+            ncount=resData['size']
+            submission_result =0
+            for x in range(ncount):
+                widget=resData['data'][x]
+                cname=widget['createdBy']['name']
+                if cname ==username:
+                    submission_result=submission_result+1
+
+                mname =widget['modifiedBy']['name']
+                if mname ==username:
+                    submission_result=submission_result+1
+
+                print(cname)
+                print(mname)
+            submission_result= submission_result/(ncount*2)
+
+            self.runtime.publish(self, "grade", { 
+                        value: submission_result,
+                        max_value: 1.0 })
+            
+            print(username)
+            ret ={'result': 'success'}
+        except Exception as e:
+            print(e)
+            ret = {
+                'success': False,
+                'error': str(e)
+            }
+        return ret
+
         
 
     # TO-DO: change this handler to perform your own actions.  You may need more
@@ -134,8 +177,10 @@ class MiroXBlock(XBlock):
             }
             response = requests.request("POST", url, json=payload, headers=headers)
             resData = response.json()
-            #print(resData['viewLink'])
+            print(resData)
             self.viewLink =resData['viewLink'].replace('board','live-embed')
+            self.boardId = resData['id']
+            print(self.boardId)
             ret = "新白板建立"
         # Just to show data coming in...
         #assert data['hello'] == 'world'

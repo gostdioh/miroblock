@@ -6,11 +6,11 @@ function MiroXBlockEdit(runtime, element) {
       };
 
       var datastr =JSON.stringify(data)
-      runtime.notify('save', {state: 'start'});
+      //runtime.notify('save', {state: 'start'});
       alert(datastr)
       $.post(handlersubmit, datastr).done(function(response) {
       console.log(response)
-      runtime.notify('save', {state: 'end'});
+      //runtime.notify('save', {state: 'end'});
       });
     });
   

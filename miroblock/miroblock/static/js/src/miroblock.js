@@ -2,7 +2,8 @@
 function MiroXBlock(runtime, element) {
 
     function updateCount(result) {
-        $('.count', element).text(result.count);
+        console.log(result)
+        
     }
 
     var handlerUrl = runtime.handlerUrl(element, 'upload_contribution');
