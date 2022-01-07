@@ -15,7 +15,8 @@ class MiroXBlock(XBlock):
 
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
-
+    has_score = True
+    
     bearer = String(
         default="", scope=Scope.settings,
         help="Bearer token",
