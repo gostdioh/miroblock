@@ -6,6 +6,7 @@ import requests
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import Integer, String, Scope
+from submissions import api as submissions_api
 
 @XBlock.needs("user")
 class MiroXBlock(XBlock):
@@ -108,6 +109,7 @@ class MiroXBlock(XBlock):
         try:
             user_service = self.runtime.service(self, 'user')
             user = user_service.get_current_user()
+            user_id = user.opt_attrs.get('edx-platform.user_id')
             username = user.opt_attrs.get('edx-platform.username')
             url = "https://api.miro.com/v1/boards/"+self.boardId+"/widgets/"
             print(url)
@@ -134,14 +136,35 @@ class MiroXBlock(XBlock):
 
                 print(cname)
                 print(mname)
-            submission_result= submission_result/(ncount*2)
+            submission_result= submission_result/(ncount*2)+0.1
+            # answer = {}
+            # print( data)
+            # print("data + scope_ids ")
+            # print(self.scope_ids)
+            # student_id = str(self.scope_ids.user_id)
+            # item_id = str(self.scope_ids.usage_id)
+            # course_id=str(self.scope_ids.usage_id.course_key)
 
+            # student_item =dict(
+            #     student_id=user_id,
+            #     item_id=item_id,
+            #     course_id=course_id,
+            #     item_type='miroblock'
+            #         ) ## xblock.get_student_item_dict()
+            # submission = submissions_api.create_submission(student_item, answer)
+            # print(submission)
+            
+            # submissions_api.set_score(submission["uuid"], 5, 10)
+            
+            print("set score")
             self.runtime.publish(self, "grade", { 
-                        value: submission_result,
-                        max_value: 1.0 })
+                        "value": submission_result,
+                        "max_value": 1.0 
+                        })
             
             print(username)
-            ret ={'result': 'success'}
+            ret ={'result': 'success',
+                  'success': True}
         except Exception as e:
             print(e)
             ret = {

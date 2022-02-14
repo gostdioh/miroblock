@@ -32,3 +32,17 @@ Change site configuration
     "COURSE_CATALOG_API_URL": "http://edx.devstack.discovery:18381/api/v1/"
 }
 
+
+
+
+https://github.com/edx/edx-platform/blob/master/lms/djangoapps/grades/signals/handlers.py
+   
+  self.runtime.publish(self, "grade", { 
+                        "value": submission_result,
+                        "max_value": 1.0 })
+   傳回，些事件似乎是決定一個課程是否通過                      
+   COURSE_GRADE_NOW_FAILED
+
+   要給分數應用
+
+
